@@ -1,12 +1,9 @@
 package ar.edu.unlam.sinaliento;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -17,27 +14,29 @@ import com.andrognito.patternlockview.utils.PatternLockUtils;
 
 import java.util.List;
 
-public class PatternActivity extends AppCompatActivity {
+public class ChangePatternActivity extends AppCompatActivity {
 
+    MySharedPreferences sharedPreferences = MySharedPreferences.getSharedPreferences(this);
     String finalPattern = "";
     PatternLockView mPatternLockView;
-    MySharedPreferences sharedPreferences = MySharedPreferences.getSharedPreferences(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pattern);
+        setContentView(R.layout.activity_change_pattern);
+    }
 
-        if (sharedPreferences.patternExists()) {
-            Log.d("PatternActivity", "UnlockActivity");
-            startUnlockActivity();
-        }
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-        else {
-            Log.d("PatternActivity", "ListenPattern");
-            listenPattern();
-            listenButtonToSave();
-        }
+        listenPattern();
+        listenButtonToSave();
+    }
+
+    private void startUnlockActivity() {
+        Intent intent = new Intent(ChangePatternActivity.this, UnlockActivity.class);
+        startActivity(intent);
     }
 
     private void listenPattern() {
@@ -60,28 +59,15 @@ public class PatternActivity extends AppCompatActivity {
     }
 
     private void listenButtonToSave() {
-        Button btnSaveUnlockPattern = (Button) findViewById(R.id.btnSaveUnlockPattern);
-        btnSaveUnlockPattern.setOnClickListener(new View.OnClickListener() {
+        Button btnChangeUnlockPattern = (Button) findViewById(R.id.btnChangeUnlockPattern);
+        btnChangeUnlockPattern.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 sharedPreferences.setPattern(finalPattern);
-                Toast.makeText(PatternActivity.this, "Patrón guardado con éxito", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ChangePatternActivity.this, "Patrón guardado", Toast.LENGTH_SHORT).show();
                 startUnlockActivity();
             }
         });
-    }
-
-    private void startUnlockActivity() {
-        Intent intent = new Intent(PatternActivity.this, UnlockActivity.class);
-        startActivity(intent);
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK ) {
-            ActivityCompat.finishAffinity(this);
-        }
-        return super.onKeyDown(keyCode, event);
     }
 
 }

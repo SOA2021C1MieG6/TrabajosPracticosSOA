@@ -3,9 +3,15 @@ package ar.edu.unlam.sinaliento;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.widget.CheckBox;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.andrognito.patternlockview.PatternLockView;
@@ -20,17 +26,34 @@ public class UnlockActivity extends AppCompatActivity {
     PatternLockView mPatternLockView;
     MySharedPreferences sharedPreferences = MySharedPreferences.getSharedPreferences(this);
 
+    private TextView batteryTxt;
+    private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
+            batteryTxt.setText("Batería: " + String.valueOf(level) + "%");
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_unlock);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         if (sharedPreferences.patternExists()) {
             checkPattern();
+
+            batteryTxt = (TextView) this.findViewById(R.id.batteryTxt);
+            this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         }
 
         else {
-            startPatternActivity();
+            startInitialActivity();
         }
     }
 
@@ -50,7 +73,12 @@ public class UnlockActivity extends AppCompatActivity {
 
                 if (finalPattern.equals(sharedPreferences.getPattern())) {
                     Toast.makeText(UnlockActivity.this, "Patrón ingresado correctamente", Toast.LENGTH_SHORT).show();
-                    startSessionActivity();
+                    if (changePatternCheckboxIsChecked()) {
+                        startChangePatternActivity();
+                    }
+                    else {
+                        startMainActivity();
+                    }
                 }
 
                 else {
@@ -65,13 +93,24 @@ public class UnlockActivity extends AppCompatActivity {
         });
     }
 
-    private void startSessionActivity() {
-        Intent intent = new Intent(UnlockActivity.this, SessionActivity.class);
+    private void startMainActivity() {
+        Intent intent = new Intent(UnlockActivity.this, MainActivity.class);
         startActivity(intent);
     }
 
-    private void startPatternActivity() {
-        Intent intent = new Intent(UnlockActivity.this, PatternActivity.class);
+    private void startInitialActivity() {
+        Intent intent = new Intent(UnlockActivity.this, InitialActivity.class);
+        startActivity(intent);
+    }
+
+    private boolean changePatternCheckboxIsChecked() {
+        CheckBox changePatternCheckbox = (CheckBox) findViewById(R.id.changePatternCheckbox);
+
+        return changePatternCheckbox.isChecked();
+    }
+
+    private void startChangePatternActivity() {
+        Intent intent = new Intent(UnlockActivity.this, ChangePatternActivity.class);
         startActivity(intent);
     }
 

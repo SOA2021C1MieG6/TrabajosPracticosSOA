@@ -7,10 +7,28 @@
     android:background="@color/colorPrimaryDark"
     tools:context="ar.edu.unlam.sinaliento.UnlockActivity">
 
+    <TextView
+        android:id="@+id/batteryTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
     <com.andrognito.patternlockview.PatternLockView
         android:id="@+id/pattern_lock_view"
         android:layout_width="280dp"
         android:layout_height="280dp"
+        android:layout_centerInParent="true"
+    />
+
+    <CheckBox
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/change_pattern_checkbox"
+        android:textAllCaps="false"
+        android:id="@+id/changePatternCheckbox"
+        android:layout_below="@+id/pattern_lock_view"
         android:layout_centerInParent="true"
     />
 
