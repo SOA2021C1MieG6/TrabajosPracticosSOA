@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">Sin aliento</string>
+    <string name="save_pattern_text">Guardar patrón</string>
+    <string name="pattern_alert_text">
+        Se requiere definir un patrón de desbloqueo a continuación.\n\n
+        Es necesario recordarlo ya que será solicitado al ingresar a la aplicación para asegurar una mayor seguridad.\n\n
+        En caso de olvidarlo, es posible desinstalar y volver a instalar la aplicación para establecer uno nuevo.
+    </string>
+    <string name="accept_button_text">Aceptar</string>
+    <string name="change_pattern_checkbox">Cambiar patrón</string>
+    <string name="change_pattern_text">Cambiar patrón</string>
+
+    <string name="volver">Volver</string>
+    <string name="login">Login</string>
+    <string name="sin_aliento">Sin Aliento</string>
+    <string-array name="spinnerCommission">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+        <item>Jupiter</item>
+        <item>Saturn</item>
+        <item>Uranus</item>
+        <item>Neptune</item>
+    </string-array>
+
+    <string name="join_text">¿Todavía no sos parte de Sin Aliento?</string>
+    <string name="register_text">Registrate</string>
+    <string name="password_hint">Password</string>
+    <string name="email_hint">Email</string>
+    <string name="z_respiration_hint">Respiración en Z</string>
+    <string name="y_respiration_hint">Respiración en Y</string>
+    <string name="back_text">Volver</string>
+    <string name="x_respiration_hint">Respiración en X</string>
+    <string name="start_text">Iniciar</string>
+    <string name="commission_number_hint">Número de Comisión</string>
+    <string name="group_number_hint">Número de Grupo</string>
+    <string name="dni_hint">DNI</string>
+    <string name="surname_hint">Apellido</string>
+    <string name="name_hint">Nombre</string>
+    <string name="accept_register_text">Registrar</string>
+    <string name="close_application_alert">Toque de nuevo para cerrar la aplicación</string>
+</resources>
