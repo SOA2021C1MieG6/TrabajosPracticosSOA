@@ -6,8 +6,9 @@ import androidx.core.app.ActivityCompat;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.View;
 import android.widget.Button;
+
+import ar.edu.unlam.sinaliento.utils.MySharedPreferences;
 
 public class InitialActivity extends AppCompatActivity {
 
@@ -33,13 +34,8 @@ public class InitialActivity extends AppCompatActivity {
 
     private void listenButtonToAccept() {
 
-        Button btnSaveUnlockPattern = (Button) findViewById(R.id.btnAcceptCreatePattern);
-        btnSaveUnlockPattern.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startPatternActivity();
-            }
-        });
+        Button btnSaveUnlockPattern = findViewById(R.id.btnAcceptCreatePattern);
+        btnSaveUnlockPattern.setOnClickListener(v -> startPatternActivity());
     }
 
     private void startUnlockActivity() {

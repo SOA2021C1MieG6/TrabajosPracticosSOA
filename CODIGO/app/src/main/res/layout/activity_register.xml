@@ -24,13 +24,13 @@
         app:layout_constraintTop_toBottomOf="@+id/txtGroup" />
 
     <Button
-        android:id="@+id/btnToLogin"
+        android:id="@+id/btnToLogout"
         android:layout_width="277dp"
         android:layout_height="40dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/button_rounded_border"
-        android:onClick="ToLogin"
-        android:text="@string/volver"
+        android:onClick="backToLogin"
+        android:text="@string/back_to_login_button_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -65,7 +65,7 @@
         android:layout_marginRight="32dp"
         android:ems="10"
         android:hint="@string/password_hint"
-        android:inputType="textPersonName"
+        android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtEmail" />
@@ -145,7 +145,7 @@
         android:layout_marginRight="64dp"
         android:layout_marginBottom="160dp"
         android:background="@drawable/button_rounded"
-        android:onClick="Register"
+        android:onClick="register"
         android:text="@string/accept_register_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -20,6 +20,8 @@ import com.andrognito.patternlockview.utils.PatternLockUtils;
 
 import java.util.List;
 
+import ar.edu.unlam.sinaliento.utils.MySharedPreferences;
+
 public class UnlockActivity extends AppCompatActivity {
 
     String finalPattern = "";
@@ -31,7 +33,7 @@ public class UnlockActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
-            batteryTxt.setText("Batería: " + String.valueOf(level) + "%");
+            batteryTxt.setText(getString(R.string.battery_level_text) + level + "%");
         }
     };
 
@@ -48,7 +50,7 @@ public class UnlockActivity extends AppCompatActivity {
         if (sharedPreferences.patternExists()) {
             checkPattern();
 
-            batteryTxt = (TextView) this.findViewById(R.id.batteryTxt);
+            batteryTxt = this.findViewById(R.id.batteryTxt);
             this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         }
 
@@ -59,7 +61,7 @@ public class UnlockActivity extends AppCompatActivity {
 
     private void checkPattern() {
         setContentView(R.layout.activity_unlock);
-        mPatternLockView = (PatternLockView) findViewById(R.id.pattern_lock_view);
+        mPatternLockView = findViewById(R.id.pattern_lock_view);
         mPatternLockView.addPatternLockListener(new PatternLockViewListener() {
             @Override
             public void onStarted() {}
@@ -72,7 +74,7 @@ public class UnlockActivity extends AppCompatActivity {
                 finalPattern = PatternLockUtils.patternToString(mPatternLockView, pattern);
 
                 if (finalPattern.equals(sharedPreferences.getPattern())) {
-                    Toast.makeText(UnlockActivity.this, "Patrón ingresado correctamente", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(UnlockActivity.this, getString(R.string.correct_pattern_text), Toast.LENGTH_SHORT).show();
                     if (changePatternCheckboxIsChecked()) {
                         startChangePatternActivity();
                     }
@@ -82,7 +84,7 @@ public class UnlockActivity extends AppCompatActivity {
                 }
 
                 else {
-                    Toast.makeText(UnlockActivity.this, "Patrón incorrecto", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(UnlockActivity.this, getString(R.string.wrong_pattern_text), Toast.LENGTH_SHORT).show();
                 }
 
                 pattern.clear();
@@ -104,7 +106,7 @@ public class UnlockActivity extends AppCompatActivity {
     }
 
     private boolean changePatternCheckboxIsChecked() {
-        CheckBox changePatternCheckbox = (CheckBox) findViewById(R.id.changePatternCheckbox);
+        CheckBox changePatternCheckbox = findViewById(R.id.changePatternCheckbox);
 
         return changePatternCheckbox.isChecked();
     }

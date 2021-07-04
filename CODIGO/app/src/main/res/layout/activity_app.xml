@@ -7,15 +7,14 @@
     tools:context=".AppActivity">
 
     <TextView
-        android:id="@+id/tvGyroZ"
+        android:id="@+id/tvGyroX"
         android:layout_width="250dp"
-        android:layout_height="wrap_content"
+        android:layout_height="20dp"
         android:layout_marginTop="40dp"
-        android:hint="@string/z_respiration_hint"
+        android:hint="@string/x_respiration_hint"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvGyroY" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/tvGyroY"
@@ -24,43 +23,107 @@
         android:layout_marginTop="40dp"
         android:hint="@string/y_respiration_hint"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvGyroX" />
 
-    <Button
-        android:id="@+id/btnToLogin"
+    <TextView
+        android:id="@+id/tvGyroZ"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:hint="@string/z_respiration_hint"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvGyroY" />
+
+    <Switch
+        android:id="@+id/sensorEventRegisterSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:background="@drawable/button_rounded_border"
-        android:onClick="ToLogin"
-        android:text="@string/back_text"
+        android:text="@string/sensor_event_register_switch_text"
+        android:layout_marginTop="40dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
-
-    <TextView
-        android:id="@+id/tvGyroX"
-        android:layout_width="250dp"
-        android:layout_height="20dp"
-        android:layout_marginTop="100dp"
-        android:hint="@string/x_respiration_hint"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/tvGyroZ"  />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/btnToControlRespiration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="60dp"
         android:background="@drawable/button_rounded"
-        android:onClick="InitApp"
-        android:text="@string/start_text"
+        android:onClick="initApp"
+        android:text="@string/control_respiration_button_text"
+        android:paddingStart="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvGyroZ" />
+        app:layout_constraintTop_toBottomOf="@+id/sensorEventRegisterSwitch" />
+
+    <Button
+        android:id="@+id/btnToConfigureAlert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/button_rounded"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:onClick="configureAlert"
+        android:text="@string/configure_alert_text"
+        android:paddingStart="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnToControlRespiration" />
+
+    <Button
+        android:id="@+id/generateAlert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/button_rounded"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:onClick="generateAlert"
+        android:text="@string/generate_alert_text"
+        android:paddingStart="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnToConfigureAlert" />
+
+    <Button
+        android:id="@+id/btnToLogout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:paddingStart="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:background="@drawable/button_rounded_border"
+        android:onClick="logOut"
+        android:text="@string/logout_button_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/generateAlert" />
+
+    <Button
+        android:id="@+id/helpBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/button_rounded"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/colorPrimaryDark"
+        android:onClick="help"
+        android:text="@string/help_button_text"
+        android:paddingStart="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnToLogout" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

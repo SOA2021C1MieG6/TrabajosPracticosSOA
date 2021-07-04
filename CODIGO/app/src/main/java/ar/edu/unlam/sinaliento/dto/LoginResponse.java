@@ -2,11 +2,9 @@ package ar.edu.unlam.sinaliento.dto;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Response {
+public class LoginResponse {
 
     private Boolean success;
-
-    private String env;
 
     private String token;
 
@@ -18,28 +16,20 @@ public class Response {
         return success;
     }
 
-    public String getEnv() {
-        return env;
+    public void setSuccess(Boolean success) {
+        this.success = success;
     }
 
     public String getToken() {
         return token;
     }
 
-    public String getTokenRefresh() {
-        return tokenRefresh;
-    }
-
-    public void setSuccess(Boolean success) {
-        this.success = success;
-    }
-
-    public void setEnv(String env) {
-        this.env = env;
-    }
-
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getTokenRefresh() {
+        return tokenRefresh;
     }
 
     public void setTokenRefresh(String tokenRefresh) {

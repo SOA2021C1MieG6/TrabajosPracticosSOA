@@ -1,6 +1,6 @@
 package ar.edu.unlam.sinaliento.dto;
 
-public class Login {
+public class LoginRequest {
     private String email;
     private String password;
 

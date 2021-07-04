@@ -1,9 +1,6 @@
 package ar.edu.unlam.sinaliento;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,12 +9,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import ar.edu.unlam.sinaliento.dto.Post;
-import ar.edu.unlam.sinaliento.dto.Response;
+import ar.edu.unlam.sinaliento.dto.RegisterRequest;
+import ar.edu.unlam.sinaliento.dto.RegisterResponse;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import ar.edu.unlam.sinaliento.utils.SoaApi;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
@@ -47,24 +45,20 @@ public class RegisterActivity extends AppCompatActivity {
         commission = findViewById(R.id.txtCommision);
     }
 
-    public void Register(View view) {
+    public void register(View view) {
         ArrayList<String> errors =  inputsValidations();
 
         if (!errors.isEmpty()) {
             for (String error : errors)  {
-                Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
             }
         }
         else {
+            if (MainActivity.isNetworkAvailable(this)) {
 
-            ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+                RegisterRequest request = new RegisterRequest();
 
-            if (networkInfo != null && networkInfo.isConnected()) {
-
-                Post request = new Post();
-
-                request.setEnv("PROD");
+                request.setEnv(getString(R.string.apiURL));
                 request.setName(name.getText().toString());
                 request.setLastName(lastName.getText().toString());
                 request.setDni(Long.parseLong(dni.getText().toString()));
@@ -76,33 +70,34 @@ public class RegisterActivity extends AppCompatActivity {
 
                 Retrofit retrofit = new Retrofit.Builder()
                         .addConverterFactory(GsonConverterFactory.create())
-                        .baseUrl("http://so-unlam.net.ar/api/")
+                        .baseUrl(getString(R.string.apiURL))
                         .build();
 
-                RegisterApi apiRegister = retrofit.create(RegisterApi.class);
+                SoaApi apiSOA = retrofit.create(SoaApi.class);
 
-                Call<Response> call = apiRegister.register(request);
-                call.enqueue(new Callback<Response>() {
+                Call<RegisterResponse> call = apiSOA.register(request);
+                call.enqueue(new Callback<RegisterResponse>() {
                     @Override
-                    public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
+                    public void onResponse(Call<RegisterResponse> call, retrofit2.Response<RegisterResponse> response) {
 
                         if(response.isSuccessful()) {
                             Intent app = new Intent(getApplicationContext(), AppActivity.class);
                             startActivity(app);
                         }
-                        else{
-                            Toast.makeText(getApplicationContext(), "No anduvo bien", Toast.LENGTH_LONG).show();
+
+                        else {
+                            Toast.makeText(getApplicationContext(), getString(R.string.unregister_text), Toast.LENGTH_LONG).show();
                         }
                     }
 
                     @Override
-                    public void onFailure(Call<Response> call, Throwable t) {
+                    public void onFailure(Call<RegisterResponse> call, Throwable t) {
                         Log.e(null,t.getMessage());
                     }
                 });
             }
             else {
-                Toast.makeText(this, "No hay conexion a internet", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getString(R.string.no_internet_conection_text), Toast.LENGTH_LONG).show();
             }
 
 
@@ -110,10 +105,9 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
-
     public ArrayList<String> inputsValidations() {
 
-        //VALIDATION PATTERNS
+        //Validation Patterns
         Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
         Pattern VALID_NAME_REGEX = Pattern.compile("^[A-Za-z\\s]+[\\.]?[A-Za-z\\s]*$");
 
@@ -127,51 +121,51 @@ public class RegisterActivity extends AppCompatActivity {
         String txtCommission = commission.getText().toString();
 
         if(txtDni.isEmpty()){
-            errors.add("Debe ingresar un DNI");
+            errors.add(getString(R.string.empty_dni_register_error));
         }
 
         if(txtName.isEmpty()) {
-            errors.add("Debe ingresar un nombre");
+            errors.add(getString(R.string.empty_name_register_error));
         }
         else if(!VALID_NAME_REGEX.matcher(txtName).find()) {
-            errors.add("Debe ingresar un nombre valido");
+            errors.add(getString(R.string.unvalid_name_register_error));
         }
 
         if(txtLastName.isEmpty()) {
-            errors.add("Debe ingresar un apellido");
+            errors.add(getString(R.string.empty_last_name_register_error));
         }
         else if(!VALID_NAME_REGEX.matcher(txtLastName).find()) {
-            errors.add("Debe ingresar un apellido valido");
+            errors.add(getString(R.string.unvalid_last_name_register_error));
         }
 
         if (txtEmail.isEmpty()) {
-            errors.add("Debe ingresar un email");
+            errors.add(getString(R.string.empty_email_register_error));
         }
         else if (!VALID_EMAIL_ADDRESS_REGEX.matcher(txtEmail).find()) {
-            errors.add("Debe ingresar un email válido");
+            errors.add(getString(R.string.unvalid_email_register_error));
         }
 
         if (txtPassword.isEmpty()) {
-            errors.add("Debe ingresar una password");
+            errors.add(getString(R.string.empty_password_register_error));
         }
 
         if(txtGroup.isEmpty()) {
-            errors.add("Debe ingresar un numero de grupo");
+            errors.add(getString(R.string.empty_group_number_register_error));
         }
 
         if(txtCommission.isEmpty()) {
-            errors.add("Debe ingresar un numero de comision");
+            errors.add(getString(R.string.empty_commission_number_register_error));
         }
         else if(!txtCommission.equals("2900")  && !txtCommission.equals("3900")) {
-            errors.add("Debe ingresar un numero de comision valido (2900 o 3900)");
+            errors.add(getString(R.string.unvalid_commission_number_register_error));
         }
 
         return errors;
     }
 
-    ///metodo para el boton enviar
-    public void ToLogin(View view) {
+    public void backToLogin(View view) {
         Intent login = new Intent(this, MainActivity.class);
+
         startActivity(login);
     }
 }

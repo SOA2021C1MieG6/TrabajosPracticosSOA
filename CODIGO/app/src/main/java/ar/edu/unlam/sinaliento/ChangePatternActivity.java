@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -13,6 +12,8 @@ import com.andrognito.patternlockview.listener.PatternLockViewListener;
 import com.andrognito.patternlockview.utils.PatternLockUtils;
 
 import java.util.List;
+
+import ar.edu.unlam.sinaliento.utils.MySharedPreferences;
 
 public class ChangePatternActivity extends AppCompatActivity {
 
@@ -40,7 +41,7 @@ public class ChangePatternActivity extends AppCompatActivity {
     }
 
     private void listenPattern() {
-        mPatternLockView = (PatternLockView) findViewById(R.id.pattern_lock_view);
+        mPatternLockView = findViewById(R.id.pattern_lock_view);
         mPatternLockView.addPatternLockListener(new PatternLockViewListener() {
             @Override
             public void onStarted() {}
@@ -59,14 +60,11 @@ public class ChangePatternActivity extends AppCompatActivity {
     }
 
     private void listenButtonToSave() {
-        Button btnChangeUnlockPattern = (Button) findViewById(R.id.btnChangeUnlockPattern);
-        btnChangeUnlockPattern.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sharedPreferences.setPattern(finalPattern);
-                Toast.makeText(ChangePatternActivity.this, "Patrón guardado", Toast.LENGTH_SHORT).show();
-                startUnlockActivity();
-            }
+        Button btnChangeUnlockPattern = findViewById(R.id.btnChangeUnlockPattern);
+        btnChangeUnlockPattern.setOnClickListener(v -> {
+            sharedPreferences.setPattern(finalPattern);
+            Toast.makeText(ChangePatternActivity.this, getString(R.string.changed_pattern_text), Toast.LENGTH_SHORT).show();
+            startUnlockActivity();
         });
     }
 
