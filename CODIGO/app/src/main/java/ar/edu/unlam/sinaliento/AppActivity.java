@@ -47,6 +47,7 @@ public class AppActivity extends AppCompatActivity implements SensorEventListene
 
     private Switch mSensorEventRegisterSwitch;
 
+    private TextView txtProximity;
     private TextView txtGyroX;
     private TextView txtGyroY;
     private TextView txtGyroZ;
@@ -71,6 +72,7 @@ public class AppActivity extends AppCompatActivity implements SensorEventListene
 
         refreshToken();
 
+        txtProximity = findViewById(R.id.tvProximity);
         txtGyroX = findViewById(R.id.tvGyroX);
         txtGyroY = findViewById(R.id.tvGyroY);
         txtGyroZ = findViewById(R.id.tvGyroZ);
@@ -122,7 +124,7 @@ public class AppActivity extends AppCompatActivity implements SensorEventListene
 
             if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
                 valor = event.values[0];
-                Toast.makeText(this, getString(R.string.proximity_text) + valor, Toast.LENGTH_SHORT).show();
+                txtProximity.setText(getString(R.string.proximity_value_text) + valor);
 
                 if (mSensorEventRegisterSwitch.isChecked()) {
                     registerProximityEvent(valor);
@@ -152,9 +154,9 @@ public class AppActivity extends AppCompatActivity implements SensorEventListene
                         registerGyroscopeEvent(event.values[0], event.values[1], event.values[2]);
                     }
 
-                    txtGyroX.setText(Float.toString(event.values[0]));
-                    txtGyroY.setText(Float.toString(event.values[1]));
-                    txtGyroZ.setText(Float.toString(event.values[2]));
+                    txtGyroX.setText(String.format("%.4f", event.values[0]));
+                    txtGyroY.setText(String.format("%.4f", event.values[1]));
+                    txtGyroZ.setText(String.format("%.4f", event.values[2]));
                 }
             }
             else if(isOn == true){
@@ -168,9 +170,7 @@ public class AppActivity extends AppCompatActivity implements SensorEventListene
 
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
     private void initializeSensor(Sensor sensor) {
         mSensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);

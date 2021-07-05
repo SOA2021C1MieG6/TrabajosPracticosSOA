@@ -119,4 +119,7 @@
     <string name="generate_alert_textview_text"><u>Generar alerta:</u> simula las señales de alerta configuradas.</string>
     <string name="back_to_app_button_text">Volver</string>
     <string name="help_button_text">Ayuda</string>
+    <string name="proximity_hint">Proximidad</string>
+    <string name="proximity_value_text">Proximidad:\u0020</string>
+    <string name="register_completed_toast_text">Registro finalizado correctamente</string>
 </resources>

@@ -21,6 +21,8 @@ import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static ar.edu.unlam.sinaliento.R.string.register_completed_toast_text;
+
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText dni;
@@ -58,7 +60,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                 RegisterRequest request = new RegisterRequest();
 
-                request.setEnv(getString(R.string.apiURL));
+                request.setEnv(getString(R.string.environment));
                 request.setName(name.getText().toString());
                 request.setLastName(lastName.getText().toString());
                 request.setDni(Long.parseLong(dni.getText().toString()));
@@ -81,8 +83,8 @@ public class RegisterActivity extends AppCompatActivity {
                     public void onResponse(Call<RegisterResponse> call, retrofit2.Response<RegisterResponse> response) {
 
                         if(response.isSuccessful()) {
-                            Intent app = new Intent(getApplicationContext(), AppActivity.class);
-                            startActivity(app);
+                            Toast.makeText(RegisterActivity.this, getString(register_completed_toast_text), Toast.LENGTH_LONG).show();
+                            backToLogin(null);
                         }
 
                         else {
