@@ -2,7 +2,6 @@ package ar.edu.unlam.sinaliento;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.PhoneNumberUtils;
 import android.view.View;
@@ -72,8 +71,7 @@ public class ConfigureAlertActivity extends AppCompatActivity {
     }
 
     private void goToAppActivity() {
-        Intent appIntent = new Intent(this, AppActivity.class);
-        startActivity(appIntent);
+        finish();
     }
 
     private boolean phoneIsValid(String phone) {

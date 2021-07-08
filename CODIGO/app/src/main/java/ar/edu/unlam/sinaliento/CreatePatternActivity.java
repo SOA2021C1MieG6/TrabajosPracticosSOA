@@ -2,7 +2,6 @@ package ar.edu.unlam.sinaliento;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
@@ -69,8 +68,7 @@ public class CreatePatternActivity extends AppCompatActivity {
     }
 
     private void startUnlockActivity() {
-        Intent intent = new Intent(CreatePatternActivity.this, UnlockActivity.class);
-        startActivity(intent);
+        finish();
     }
 
 }

@@ -1,16 +1,18 @@
 package ar.edu.unlam.sinaliento;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Telephony;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Switch;
@@ -19,7 +21,10 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,8 +43,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AppActivity extends AppCompatActivity implements SensorEventListener {
 
-    private static final int ROTATION_WAIT_TIME_MS = 500;
-    private long mGyroTime = 0;
+    SimpleDateFormat formatter;
 
     private SensorManager mSensorManager;
     private Sensor mSensorGyroscope;
@@ -52,23 +56,49 @@ public class AppActivity extends AppCompatActivity implements SensorEventListene
     private TextView txtGyroY;
     private TextView txtGyroZ;
 
-    private double valor;
+    private double proximityValue;
     private boolean isOn;
 
     private MediaPlayer mp;
-    private final int SMS_EXECUTED_AND_SEND_EMAIL = 800;
+
+    private final int WAIT_TIME_MS = 10000;
+
+    private int PROXIMITY_CLOSER = 0;
+
+    private int X_EVENT_GYRO_KEY = 0;
+    private int Y_EVENT_GYRO_KEY = 1;
+    private int Z_EVENT_GYRO_KEY = 2;
+
+    private int EVENT_PROXIMITY_KEY = 0;
+
+    private final long TIME_NOT_DEFINED = -1;
+    private long initialTime = TIME_NOT_DEFINED;
+    private long differenceTime;
+
+    private final float MINIMUM_TO_BREATHE = 0.05f;
+
     private final int EMAIL_EXECUTED = 801;
+    private final int PERMISSION_REQUEST_SEND_SMS = 1;
 
     MySharedPreferences sharedPreferences = MySharedPreferences.getSharedPreferences(this);
+    SharedPreferences eventSharedPreferences;
+    SharedPreferences.Editor eventEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_app);
 
+        eventSharedPreferences = getApplicationContext().getSharedPreferences(
+                getString(R.string.event_shared_preferences_name),
+                Context.MODE_PRIVATE
+        );
+
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensorGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         mSensorProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+
+        formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
         refreshToken();
 
@@ -80,7 +110,6 @@ public class AppActivity extends AppCompatActivity implements SensorEventListene
         mSensorEventRegisterSwitch = findViewById(R.id.sensorEventRegisterSwitch);
 
         isOn = false;
-        valor = 10;
 
         mp = MediaPlayer.create(this, R.raw.beep_alert);
 
@@ -90,30 +119,104 @@ public class AppActivity extends AppCompatActivity implements SensorEventListene
     @Override
     protected void onResume() {
         super.onResume();
+
+        txtGyroX.setText(getString(R.string.x_respiration_hint));
+        txtGyroY.setText(getString(R.string.y_respiration_hint));
+        txtGyroZ.setText(getString(R.string.z_respiration_hint));
     }
 
     public void logOut(View view) {
         stopSensors();
         mp.stop();
-        sharedPreferences.setToken("");
-        sharedPreferences.setTokenRefresh("");
-        Intent login = new Intent(this, MainActivity.class);
+        sharedPreferences.setToken(null);
+        sharedPreferences.setTokenRefresh(null);
+        sharedPreferences.setEmail(null);
 
         Toast.makeText(this, getString(R.string.finished_session_text), Toast.LENGTH_SHORT).show();
 
-        startActivity(login);
+        finish();
     }
 
-    public void initApp(View view) {
+    public void controlRespiration(View view) {
 
-        if (valor == 0) {
-            initializeGyroscope();
-            isOn = true;
-        }
-        else {
+        if (proximityValue != 0) {
             Toast.makeText(this, getString(R.string.phone_should_be_closer_text), Toast.LENGTH_SHORT).show();
         }
 
+        if (!isOn) {
+            initializeGyroscope();
+            isOn = true;
+        }
+    }
+
+    private synchronized void checkProximity(float proximity) {
+        proximityValue = proximity;
+
+        txtProximity.setText(getString(R.string.proximity_value_text) + proximityValue);
+
+        eventEditor = eventSharedPreferences.edit();
+        eventEditor.putString(
+                formatter.format(System.currentTimeMillis()),
+                getString(R.string.proximity_value_text) + proximityValue
+        );
+        eventEditor.apply();
+
+        if (mSensorEventRegisterSwitch.isChecked()) {
+            registerProximityEvent(proximityValue);
+        }
+    }
+
+    private synchronized void checkRespiration(float xValue, float yValue, float zValue) {
+            float totalGyro = Math.abs(xValue) + Math.abs(yValue) + Math.abs(zValue);
+            Log.e("totalGyro", Float.toString(totalGyro));
+
+            // Giroscopio inferior al umbral (no respira)
+            if(totalGyro <= MINIMUM_TO_BREATHE) {
+                if (initialTime == TIME_NOT_DEFINED) {
+                    initialTime = System.currentTimeMillis();
+                }
+
+                Log.e("initialTime", Long.toString(initialTime));
+                differenceTime = System.currentTimeMillis() - initialTime;
+                Log.e("differenceTime", Long.toString(differenceTime));
+
+                // Tiempo que pasó sin respirar supera al umbral
+                if (differenceTime >= WAIT_TIME_MS) {
+
+                    stopSensor(mSensorGyroscope);
+                    generateAlert(null);
+                    Toast.makeText(this, getString(R.string.ambulance_alert_text), Toast.LENGTH_LONG).show();
+
+                    isOn = false;
+                    initialTime = TIME_NOT_DEFINED;
+                    txtGyroX.setText(getString(R.string.x_respiration_hint));
+                    txtGyroY.setText(getString(R.string.y_respiration_hint));
+                    txtGyroZ.setText(getString(R.string.z_respiration_hint));
+
+                }
+            }
+
+            else {
+                initialTime = TIME_NOT_DEFINED;
+            }
+
+            if (mSensorEventRegisterSwitch.isChecked()) {
+                registerGyroscopeEvent(xValue, yValue, zValue);
+            }
+
+            txtGyroX.setText(String.format("%.2f", xValue));
+            txtGyroY.setText(String.format("%.2f", yValue));
+            txtGyroZ.setText(String.format("%.2f", zValue));
+
+            eventEditor = eventSharedPreferences.edit();
+            eventEditor.putString(
+                    formatter.format(System.currentTimeMillis()),
+                    getString(R.string.gyroscope_values_text) +
+                            getString(R.string.gyroscope_x_value_text) + xValue +
+                            getString(R.string.gyroscope_y_value_text) + yValue +
+                            getString(R.string.gyroscope_z_value_text) + zValue
+            );
+            eventEditor.apply();
     }
 
     @Override
@@ -123,43 +226,26 @@ public class AppActivity extends AppCompatActivity implements SensorEventListene
             Log.d("Sensor", event.sensor.getName());
 
             if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
-                valor = event.values[0];
-                txtProximity.setText(getString(R.string.proximity_value_text) + valor);
-
-                if (mSensorEventRegisterSwitch.isChecked()) {
-                    registerProximityEvent(valor);
-                }
+                checkProximity(event.values[EVENT_PROXIMITY_KEY]);
             }
 
-            if(valor == 0 && isOn == true) {
+            if(proximityValue == PROXIMITY_CLOSER && isOn == true) {
+
                 if(event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+                    checkRespiration(
+                            event.values[X_EVENT_GYRO_KEY],
+                            event.values[Y_EVENT_GYRO_KEY],
+                            event.values[Z_EVENT_GYRO_KEY]
+                    );
+                }
 
-                    long now = System.currentTimeMillis();
-
-                    long totalGyro = (long)(event.values[0] + event.values[1] + event.values[2]);
-
-                    if(totalGyro == 0) {
-                        mGyroTime = System.currentTimeMillis();
-                        if ((now - mGyroTime) < ROTATION_WAIT_TIME_MS) {
-                            mGyroTime = System.currentTimeMillis();
-                        }
-                        else {
-                            stopSensors();
-                            generateAlert(null);
-                            Toast.makeText(this, getString(R.string.ambulance_alert_text), Toast.LENGTH_LONG ).show();
-                        }
-                    }
-
-                    if (mSensorEventRegisterSwitch.isChecked()) {
-                        registerGyroscopeEvent(event.values[0], event.values[1], event.values[2]);
-                    }
-
-                    txtGyroX.setText(String.format("%.4f", event.values[0]));
-                    txtGyroY.setText(String.format("%.4f", event.values[1]));
-                    txtGyroZ.setText(String.format("%.4f", event.values[2]));
+                else {
+                    initializeSensor(mSensorGyroscope);
                 }
             }
             else if(isOn == true){
+                stopSensor(mSensorGyroscope);
+                initialTime = TIME_NOT_DEFINED;
                 txtGyroX.setText(getString(R.string.unobtained_x_value_text));
                 txtGyroY.setText(getString(R.string.unobtained_y_value_text));
                 txtGyroZ.setText(getString(R.string.unobtained_z_value_text));
@@ -235,6 +321,11 @@ public class AppActivity extends AppCompatActivity implements SensorEventListene
         timer.schedule(doAsynchronousTask, 0, millisecondsToRefreshToken);
     }
 
+    public void goToEventList(View view) {
+        Intent intent = new Intent(this, EventListActivity.class);
+        startActivity(intent);
+    }
+
     public void configureAlert(View view) {
         Intent intent = new Intent(this, ConfigureAlertActivity.class);
         startActivity(intent);
@@ -248,30 +339,6 @@ public class AppActivity extends AppCompatActivity implements SensorEventListene
         else {
             Toast.makeText(this, getString(R.string.not_enabled_beep_toast_text), Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private Intent getIntentSMS() {
-        if (!sharedPreferences.isEnablePhone()) return null;
-
-        String message = getString(R.string.phone_alert_text) + sharedPreferences.getEmail();
-        String phone = sharedPreferences.getPhone();
-
-        Uri uri = Uri.parse("smsto:" + phone);
-        Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
-
-        intent.putExtra("address", phone);
-        intent.putExtra("sms_body", message);
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            //Getting the default sms app.
-            String defaultSmsPackageName = Telephony.Sms.getDefaultSmsPackage(this);
-
-            // Can be null in case that there is no default, then the user would be able to choose
-            // any app that support this intent.
-            if (defaultSmsPackageName != null) intent.setPackage(defaultSmsPackageName);
-        }
-
-        return intent;
     }
 
     private Intent getIntentEmail() {
@@ -319,34 +386,55 @@ public class AppActivity extends AppCompatActivity implements SensorEventListene
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == SMS_EXECUTED_AND_SEND_EMAIL) {
-            Toast.makeText(this, getString(R.string.finished_sms_execution_toast_text), Toast.LENGTH_SHORT).show();
-            sendEmail();
-        }
-
-        else if (requestCode == EMAIL_EXECUTED) {
+        if (requestCode == EMAIL_EXECUTED) {
             Toast.makeText(this, getString(R.string.finished_email_execution_toast_text), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean checkSMSPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, PERMISSION_REQUEST_SEND_SMS);
+        }
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void sendSMS() {
+        if (!checkSMSPermission()) return;
+
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            String message = getString(R.string.phone_alert_text) + sharedPreferences.getEmail();
+            String phone = sharedPreferences.getPhone();
+            smsManager.sendTextMessage(
+                    phone,
+                    null,
+                    message,
+                    null,
+                    null
+            );
+            Toast.makeText(
+                    getApplicationContext(),
+                    getString(R.string.finished_sms_execution_toast_text),
+                    Toast.LENGTH_SHORT
+            ).show();
+        } catch (Exception ex) {
+            Toast.makeText(
+                    getApplicationContext(),
+                    getString(R.string.failed_sms_execution_toast_text),
+                    Toast.LENGTH_SHORT
+            ).show();
+            ex.printStackTrace();
         }
     }
 
     public void generateAlert(View view) {
         activateBeep();
 
-        Intent intentSMS = getIntentSMS();
-
-        if (intentSMS == null) {
-            if (sharedPreferences.isEnableEmail() || sharedPreferences.isEnableAdditionalEmail()) {
-                sendEmail();
-            }
-
-            else {
-                Toast.makeText(this, getString(R.string.not_enabled_alert_toast_text), Toast.LENGTH_SHORT).show();
-            }
+        if (sharedPreferences.isEnablePhone()) {
+            sendSMS();
         }
 
-        else {
-            startActivityForResult(intentSMS, SMS_EXECUTED_AND_SEND_EMAIL);
-        }
+        sendEmail();
     }
 
     public void help(View view) {

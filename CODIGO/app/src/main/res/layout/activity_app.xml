@@ -20,7 +20,7 @@
         android:id="@+id/tvGyroX"
         android:layout_width="250dp"
         android:layout_height="20dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:hint="@string/x_respiration_hint"
         app:layout_constraintTop_toBottomOf="@+id/tvProximity"
         app:layout_constraintEnd_toEndOf="parent"
@@ -30,7 +30,7 @@
         android:id="@+id/tvGyroY"
         android:layout_width="250dp"
         android:layout_height="20dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:hint="@string/y_respiration_hint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +40,7 @@
         android:id="@+id/tvGyroZ"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:hint="@string/z_respiration_hint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -51,7 +51,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/sensor_event_register_switch_text"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvGyroZ"  />
@@ -60,9 +60,9 @@
         android:id="@+id/btnToControlRespiration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="40dp"
         android:background="@drawable/button_rounded"
-        android:onClick="initApp"
+        android:onClick="controlRespiration"
         android:text="@string/control_respiration_button_text"
         android:paddingStart="10dp"
         android:paddingLeft="10dp"
@@ -70,6 +70,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sensorEventRegisterSwitch" />
+
+    <Button
+        android:id="@+id/btnToEventList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/button_rounded"
+        android:onClick="goToEventList"
+        android:text="@string/event_list_button_text"
+        android:paddingStart="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnToControlRespiration" />
 
     <Button
         android:id="@+id/btnToConfigureAlert"
@@ -85,7 +100,7 @@
         android:paddingRight="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnToControlRespiration" />
+        app:layout_constraintTop_toBottomOf="@+id/btnToEventList" />
 
     <Button
         android:id="@+id/generateAlert"
